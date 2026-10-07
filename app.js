@@ -1,5 +1,5 @@
 const sidebar = document.getElementById("sidebar");
-const themeBtn = document.getElementById("themeBtn");
+const themeBtns = document.querySelectorAll(".theme-toggle");
 const search = document.getElementById("search");
 
 document.getElementById("menuBtn")?.addEventListener("click", () => {
@@ -8,10 +8,10 @@ document.getElementById("menuBtn")?.addEventListener("click", () => {
 
 function setTheme(dark) {
   document.body.classList.toggle("dark", dark);
-  if (themeBtn) {
-    themeBtn.textContent = dark ? "☀️ Tema claro" : "🌙 Tema escuro";
-    themeBtn.setAttribute("aria-label", dark ? "Ativar tema claro" : "Ativar tema escuro");
-  }
+  themeBtns.forEach((btn) => {
+    btn.textContent = dark ? "☀️ Tema claro" : "🌙 Tema escuro";
+    btn.setAttribute("aria-label", dark ? "Ativar tema claro" : "Ativar tema escuro");
+  });
   try { localStorage.setItem("helpdesk-theme", dark ? "dark" : "light"); } catch (_) {}
 }
 
@@ -21,9 +21,9 @@ if (savedTheme === "dark") setTheme(true);
 else if (savedTheme === "light") setTheme(false);
 else setTheme(window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? false);
 
-themeBtn?.addEventListener("click", () => {
-  setTheme(!document.body.classList.contains("dark"));
-});
+themeBtns.forEach((btn) =>
+  btn.addEventListener("click", () => setTheme(!document.body.classList.contains("dark")))
+);
 
 document.querySelectorAll("#toc a").forEach((a) =>
   a.addEventListener("click", () => sidebar?.classList.remove("open"))

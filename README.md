@@ -1,4 +1,4 @@
-# Correção do tema — Docs Helpdesk Django
+# Docs Helpdesk Django — tema claro e escuro
 
 Substitua `style.css` e `app.js` no repositório.
 

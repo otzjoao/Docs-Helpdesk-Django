@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<script>try{var t=localStorage.getItem("helpdesk-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.body.classList.add("dark")}catch(e){}</script>
 <header class="hero">
   <div class="hero-inner">
     <div class="eyebrow">DOCUMENTAÇÃO • DJANGO • HELP DESK</div>
@@ -21,12 +22,13 @@
 
 <div class="mobile-bar">
   <button id="menuBtn">☰ Sumário</button>
-  <button id="themeBtn">◐ Tema</button>
+  <button class="theme-toggle" type="button">◐ Tema</button>
 </div>
 
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-title">Navegação</div>
+    <button class="theme-toggle theme-desktop" type="button">◐ Tema</button>
     <input id="search" class="search" type="search" placeholder="Buscar na documentação…">
     <nav id="toc">
       <a href="#visao-geral">Visão geral</a>

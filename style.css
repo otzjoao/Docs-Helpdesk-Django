@@ -10,3 +10,23 @@ body.dark{color-scheme:dark;--bg:#0d1210;--surface:#151d19;--surface2:#1b2620;--
 body.dark .hero{background:radial-gradient(circle at 82% 20%,rgba(99,217,174,.16),transparent 38%),#092319}body.dark .step,body.dark .card,body.dark .improvements article,body.dark .template-grid div,body.dark .faq details{background:var(--surface);border-color:var(--line)}body.dark .step-head{background:var(--surface2);border-bottom-color:var(--line)}body.dark .search,body.dark .mobile-bar button{background:var(--surface);color:var(--ink);border-color:var(--line)}body.dark .search::placeholder{color:#7f9187}body.dark .callout{color:var(--ink)}body.dark .callout.tip{background:var(--pale)}body.dark .callout.warn{background:var(--warn-bg)}body.dark code{background:var(--pale);color:var(--green)}body.dark .status-flow span{background:var(--pale);border-color:#405348;color:var(--green)}body.dark .test-list span{background:var(--success-bg);border-color:var(--success-line);color:var(--green)}body.dark h2,body.dark .step-body h3,body.dark .card b,body.dark .improvements b,body.dark .faq summary{color:var(--green)}body.dark .sidebar a{color:var(--ink)}body.dark .sidebar a:hover,body.dark .sidebar a.active{background:var(--pale);color:var(--green)}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:fixed;z-index:20;left:0;top:0;width:min(330px,88vw);height:100vh;background:var(--bg);padding:1.5rem;transform:translateX(-105%);transition:.25s;box-shadow:var(--shadow)}.sidebar.open{transform:none}.mobile-bar{display:flex;position:sticky;top:0;z-index:10;justify-content:space-between;background:var(--bg);padding:.7rem 1rem;border-bottom:1px solid var(--line)}.mobile-bar button{font:700 .8rem var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:.5rem .7rem;border-radius:7px;cursor:pointer}.cards,.improvements{grid-template-columns:1fr 1fr}.hero-inner{padding:3rem 1.2rem}.layout{padding:2rem 1.2rem}}
 @media(max-width:600px){.cards,.improvements,.template-grid{grid-template-columns:1fr}.intro h2{font-size:2.3rem}.step-body{padding:1.2rem}.hero h1{font-size:3rem}.step-head{padding:1rem}.step-head h2{font-size:1.35rem}}
+
+/* ===== Botão de tema (desktop no sidebar, mobile na barra superior) ===== */
+.theme-toggle{font:700 .85rem var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:.6rem .8rem;border-radius:8px;cursor:pointer;transition:background-color .2s,border-color .2s}
+.theme-toggle:hover{border-color:var(--green2);background:var(--pale)}
+.theme-desktop{width:100%;margin-bottom:.8rem;text-align:left}
+@media(max-width:900px){.theme-desktop{display:none}}
+
+/* ===== Correção de leitura (tema escuro) =====
+   Antes: "body.dark code" pintava o texto dentro de <pre> de verde sobre verde.
+   Agora: código em bloco volta a ter fundo escuro e texto claro. */
+body.dark pre code,pre code{background:none;color:inherit;padding:0;font-size:inherit}
+pre{font-size:15px;line-height:1.7}
+.tree pre{font-size:15px}
+body.dark pre{color:#eef4f0;background:#0a100d;box-shadow:inset 0 0 0 1px var(--line)}
+body.dark .tree{background:#0a100d;border:1px solid var(--line)}
+body.dark{--muted:#b4c1b9}
+body.dark p,body.dark li{color:var(--ink)}
+body.dark .card span,body.dark .improvements p,body.dark .faq p{color:var(--muted)}
+body.dark code{font-size:.9em}
+body{font-size:17px}
