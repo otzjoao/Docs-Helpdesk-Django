@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Documentação passo a passo para construir um Help Desk com Django.">
+  <title>Help Desk em Django — Documentação</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">DOCUMENTAÇÃO • DJANGO • HELP DESK</div>
+    <h1>Help Desk em <em>Django</em></h1>
+    <p class="hero-subtitle">Do zero ao sistema funcionando — uma versão web navegável da documentação do projeto.</p>
+    <div class="hero-meta">
+      <span>🐍 Python 3.12+</span><span>🌐 Django</span><span>🧪 13 testes</span><span>🇧🇷 pt-BR</span>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-bar">
+  <button id="menuBtn">☰ Sumário</button>
+  <button id="themeBtn">◐ Tema</button>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">Navegação</div>
+    <input id="search" class="search" type="search" placeholder="Buscar na documentação…">
+    <nav id="toc">
+      <a href="#visao-geral">Visão geral</a>
+      <a href="#estrutura">Estrutura</a>
+      <a href="#passo-1">01 · Ambiente</a>
+      <a href="#passo-2">02 · settings.py</a>
+      <a href="#passo-3">03 · URLs</a>
+      <a href="#passo-4">04 · Permissões</a>
+      <a href="#passo-5">05 · Models</a>
+      <a href="#passo-6">06 · Admin</a>
+      <a href="#passo-7">07 · Migrations</a>
+      <a href="#passo-8">08 · Formulários</a>
+      <a href="#passo-9">09 · Views</a>
+      <a href="#passo-10">10 · URLs do app</a>
+      <a href="#passo-11">11 · Templates</a>
+      <a href="#passo-12">12 · Teste manual</a>
+      <a href="#passo-13">13 · Testes</a>
+      <a href="#passo-14">14 · GitHub</a>
+      <a href="#melhorias">✨ Melhorias sugeridas</a>
+      <a href="#problemas">Problemas comuns</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <section id="visao-geral" class="intro">
+      <span class="kicker">VISÃO GERAL</span>
+      <h2>O que você terá no final</h2>
+      <p>Um Help Desk com autenticação, abertura e acompanhamento de chamados, conversa por comentários, notas internas, fila de atendimento, atribuição de responsáveis, regras de transição de status, filtros, paginação, e-mail, admin e testes automatizados.</p>
+      <div class="cards">
+        <div class="card"><b>👤 Solicitante</b><span>Abre chamados, vê somente os próprios e comenta.</span></div>
+        <div class="card"><b>🛠️ Atendente</b><span>Vê todos, assume, gerencia status, prioridade e responsável.</span></div>
+        <div class="card"><b>🔐 Admin</b><span>Administra usuários, grupos, categorias e chamados.</span></div>
+      </div>
+      <div class="callout tip"><b>⏱️ Tempo estimado</b><br>O documento original estima cerca de 1h30 a 2h seguindo os passos na ordem.</div>
+    </section>
+
+    <section id="estrutura" class="section">
+      <div class="section-heading"><span>BASE DO PROJETO</span><h2>Mapa dos arquivos</h2></div>
+      <div class="tree"><pre><code>helpdesk/
+├── manage.py
+├── config/
+│   ├── settings.py
+│   └── urls.py
+├── tickets/
+│   ├── models.py
+│   ├── admin.py
+│   ├── permissions.py
+│   ├── forms.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── tests.py
+│   └── migrations/
+│       └── 0002_seed_data.py
+└── templates/
+    ├── registration/login.html
+    └── tickets/
+        ├── base.html
+        ├── ticket_list.html
+        ├── ticket_form.html
+        └── ticket_detail.html</code></pre></div>
+      <p class="muted">A organização acima segue o mapa de arquivos apresentado na documentação original.</p>
+    </section>
+
+    <section id="passo-1" class="step">
+      <div class="step-head"><span>01</span><div><small>PASSO 1</small><h2>Ambiente e projeto</h2></div></div>
+      <div class="step-body">
+        <p>Crie a pasta, ambiente virtual, instale Django, crie o projeto e a aplicação <code>tickets</code>.</p>
+        <h3>Windows · PowerShell</h3>
+        <pre><code>mkdir helpdesk
+cd helpdesk
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install django
+django-admin startproject config .
+python manage.py startapp tickets
+mkdir tickets\templates\tickets, tickets\templates\registration</code></pre>
+        <h3>Linux / macOS</h3>
+        <pre><code>mkdir helpdesk && cd helpdesk
+python3 -m venv .venv
+source .venv/bin/activate
+pip install django
+django-admin startproject config .
+python manage.py startapp tickets
+mkdir -p tickets/templates/tickets tickets/templates/registration</code></pre>
+        <div class="callout warn"><b>⚠️ PowerShell</b><br>Se a ativação do venv for bloqueada: <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>.</div>
+      </div>
+    </section>
+
+    <section id="passo-2" class="step">
+      <div class="step-head"><span>02</span><div><small>PASSO 2</small><h2>Configurar o settings.py</h2></div></div>
+      <div class="step-body">
+        <p>Registre o app, configure idioma/fuso e os redirecionamentos de autenticação.</p>
+        <pre><code>INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'tickets',
+]
+
+LANGUAGE_CODE = 'pt-br'
+TIME_ZONE = 'America/Campo_Grande'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'tickets:list'
+LOGOUT_REDIRECT_URL = 'login'</code></pre>
+        <div class="callout tip"><b>💡 E-mail no desenvolvimento</b><br>A documentação usa o mecanismo <code>MAILERS</code> gerado pelo Django 6.1 para que os e-mails de teste apareçam no terminal. Evite misturar essa configuração com o backend antigo <code>EMAIL_BACKEND</code>.</div>
+      </div>
+    </section>
+
+    <section id="passo-3" class="step">
+      <div class="step-head"><span>03</span><div><small>PASSO 3</small><h2>URLs do projeto</h2></div></div>
+      <div class="step-body">
+        <pre><code>from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("contas/", include("django.contrib.auth.urls")),
+    path("", include("tickets.urls")),
+]</code></pre>
+        <p><code>contas/</code> entrega login, logout e troca de senha usando as URLs de autenticação do Django.</p>
+      </div>
+    </section>
+
+    <section id="passo-4" class="step">
+      <div class="step-head"><span>04</span><div><small>PASSO 4</small><h2>Permissões: atendente × solicitante</h2></div></div>
+      <div class="step-body">
+        <p>A regra central é: atendente é <code>staff</code> ou membro do grupo <code>Atendentes</code>. Centralizar isso em um arquivo evita espalhar regras de autorização pelo projeto.</p>
+        <pre><code>from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
+
+AGENT_GROUP = "Atendentes"
+
+def is_agent(user):
+    if not user.is_authenticated:
+        return False
+    return user.is_staff or user.groups.filter(name=AGENT_GROUP).exists()
+
+def agents_queryset():
+    User = get_user_model()
+    return User.objects.filter(
+        Q(is_staff=True) | Q(groups__name=AGENT_GROUP),
+        is_active=True
+    ).distinct()
+
+class AgentRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return is_agent(self.request.user)</code></pre>
+      </div>
+    </section>
+
+    <section id="passo-5" class="step">
+      <div class="step-head"><span>05</span><div><small>PASSO 5</small><h2>Models e regras de status</h2></div></div>
+      <div class="step-body">
+        <p>O domínio é formado por <code>Category</code>, <code>Ticket</code> e <code>Comment</code>. Um chamado fechado é final, e as transições permitidas ficam explícitas no model.</p>
+        <div class="status-flow">
+          <span>Aberto</span><i>→</i><span>Em atendimento</span><i>→</i><span>Aguardando</span><i>→</i><span>Resolvido</span><i>→</i><span>Fechado</span>
+        </div>
+        <pre><code>TRANSITIONS = {
+    "open": {"in_progress", "closed"},
+    "in_progress": {"waiting", "resolved", "closed"},
+    "waiting": {"in_progress", "closed"},
+    "resolved": {"in_progress", "closed"},
+    "closed": set(),
+}
+
+def can_change_to(self, new_status):
+    return new_status == self.status or new_status in self.TRANSITIONS[self.status]</code></pre>
+        <h3>Entidades principais</h3>
+        <ul>
+          <li><b>Category:</b> nome único da categoria.</li>
+          <li><b>Ticket:</b> título, descrição, categoria, prioridade, status, solicitante, responsável e timestamps.</li>
+          <li><b>Comment:</b> autor, mensagem, indicação de nota interna e data.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="passo-6" class="step">
+      <div class="step-head"><span>06</span><div><small>PASSO 6</small><h2>Admin</h2></div></div>
+      <div class="step-body">
+        <pre><code>from django.contrib import admin
+from tickets.models import Category, Comment, Ticket
+
+class CommentInline(admin.TabularInline):
+    model = Comment
+    extra = 0
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    search_fields = ("name",)
+
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "status", "priority", "requester", "assignee")
+    list_filter = ("status", "priority", "category")
+    search_fields = ("title", "description", "requester__username")
+    inlines = [CommentInline]</code></pre>
+      </div>
+    </section>
+
+    <section id="passo-7" class="step">
+      <div class="step-head"><span>07</span><div><small>PASSO 7</small><h2>Migrations, dados iniciais e superusuário</h2></div></div>
+      <div class="step-body">
+        <p><b>A ordem importa:</b> gere a migration inicial antes de criar a migration de seed.</p>
+        <pre><code>python manage.py makemigrations tickets
+python manage.py migrate
+python manage.py createsuperuser</code></pre>
+        <p>O seed cria cinco categorias e o grupo <code>Atendentes</code>:</p>
+        <pre><code>CATEGORIES = [
+    "Hardware",
+    "Software",
+    "Rede",
+    "Acesso e senha",
+    "Outros",
+]</code></pre>
+        <div class="callout warn"><b>⚠️ Erro comum</b><br>Se surgir <code>NodeNotFoundError</code> citando <code>tickets.0001_initial</code>, o arquivo <code>0002_seed_data.py</code> foi criado antes da migration inicial.</div>
+      </div>
+    </section>
+
+    <section id="passo-8" class="step">
+      <div class="step-head"><span>08</span><div><small>PASSO 8</small><h2>Formulários</h2></div></div>
+      <div class="step-body">
+        <p>Há três formulários: abertura de chamado, comentário e gerenciamento. O campo de nota interna só fica disponível para atendentes, e o status passa pela validação das transições.</p>
+        <pre><code>class TicketForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ["title", "category", "priority", "description"]
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["body", "internal"]
+
+class ManageForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ["status", "priority", "assignee"]</code></pre>
+      </div>
+    </section>
+
+    <section id="passo-9" class="step">
+      <div class="step-head"><span>09</span><div><small>PASSO 9</small><h2>Views e segurança de visibilidade</h2></div></div>
+      <div class="step-body">
+        <p>A função <code>visible_tickets</code> é o coração da segurança: solicitante vê apenas seus chamados; atendente vê todos.</p>
+        <pre><code>def visible_tickets(user):
+    qs = Ticket.objects.select_related(
+        "category", "requester", "assignee"
+    )
+    return qs if is_agent(user) else qs.filter(requester=user)</code></pre>
+        <p>Na tela de detalhe, comentários internos são filtrados para que nunca apareçam para solicitantes.</p>
+        <pre><code>comments = self.object.comments.select_related("author")
+if not agent:
+    comments = comments.filter(internal=False)</code></pre>
+        <p>O fluxo de atendimento também permite assumir um chamado; se ele estiver aberto, passa automaticamente para <b>Em atendimento</b>.</p>
+      </div>
+    </section>
+
+    <section id="passo-10" class="step">
+      <div class="step-head"><span>10</span><div><small>PASSO 10</small><h2>URLs do app</h2></div></div>
+      <div class="step-body">
+        <pre><code>app_name = "tickets"
+
+urlpatterns = [
+    path("", views.TicketListView.as_view(), name="list"),
+    path("novo/", views.TicketCreateView.as_view(), name="create"),
+    path("&lt;int:pk&gt;/", views.TicketDetailView.as_view(), name="detail"),
+    path("&lt;int:pk&gt;/comentar/", views.add_comment, name="comment"),
+    path("&lt;int:pk&gt;/gerenciar/", views.manage_ticket, name="manage"),
+    path("&lt;int:pk&gt;/assumir/", views.assign_to_me, name="assign"),
+]</code></pre>
+      </div>
+    </section>
+
+    <section id="passo-11" class="step">
+      <div class="step-head"><span>11</span><div><small>PASSO 11</small><h2>Templates</h2></div></div>
+      <div class="step-body">
+        <p>O PDF define cinco arquivos HTML. A versão original usa templates Django simples; esta documentação web reorganiza a apresentação, mas mantém o fluxo funcional.</p>
+        <div class="template-grid">
+          <div><code>registration/login.html</code><small>Login</small></div>
+          <div><code>tickets/base.html</code><small>Layout compartilhado</small></div>
+          <div><code>tickets/ticket_list.html</code><small>Fila + filtros + paginação</small></div>
+          <div><code>tickets/ticket_form.html</code><small>Novo chamado</small></div>
+          <div><code>tickets/ticket_detail.html</code><small>Detalhe + conversa + gestão</small></div>
+        </div>
+        <p>Na implementação original, a lista oferece filtros por status e a opção <b>Meus</b> para atendentes. O detalhe reúne dados do chamado, controles de atendimento e conversa.</p>
+      </div>
+    </section>
+
+    <section id="passo-12" class="step">
+      <div class="step-head"><span>12</span><div><small>PASSO 12</small><h2>Rodar e testar manualmente</h2></div></div>
+      <div class="step-body">
+        <pre><code>python manage.py runserver</code></pre>
+        <ol class="checklist">
+          <li>Crie <b>ana</b> com e-mail preenchido no admin.</li>
+          <li>Crie <b>carlos</b> e coloque-o no grupo <b>Atendentes</b>.</li>
+          <li>Entre como ana em <code>/contas/login/</code> e abra um chamado.</li>
+          <li>Entre como carlos e clique em <b>Assumir chamado</b>.</li>
+          <li>Adicione uma nota interna e depois uma resposta normal.</li>
+          <li>Confirme que ana vê a resposta, mas não a nota interna.</li>
+          <li>Teste transições inválidas de status.</li>
+          <li>Teste que outro solicitante recebe 404 ao tentar acessar chamado alheio.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="passo-13" class="step">
+      <div class="step-head"><span>13</span><div><small>PASSO 13</small><h2>Testes automatizados</h2></div></div>
+      <div class="step-body">
+        <p>A documentação espera <b>13 testes</b> cobrindo visibilidade, notas internas, permissões, transições, e-mails e filtros.</p>
+        <pre><code>python manage.py test</code></pre>
+        <div class="test-list">
+          <span>✓ acesso anônimo → login</span><span>✓ solicitante vê apenas seus chamados</span>
+          <span>✓ chamado alheio → 404</span><span>✓ atendente vê tudo</span>
+          <span>✓ criação define requester + e-mail</span><span>✓ nota interna fica oculta</span>
+          <span>✓ solicitante não cria nota interna</span><span>✓ resposta envia e-mail</span>
+          <span>✓ solicitante não gerencia</span><span>✓ assumir altera status</span>
+          <span>✓ transições válidas/inválidas</span><span>✓ fechado é final</span>
+          <span>✓ filtro por status</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="passo-14" class="step">
+      <div class="step-head"><span>14</span><div><small>PASSO 14</small><h2>Subir no GitHub</h2></div></div>
+      <div class="step-body">
+        <pre><code>git init
+git add .
+git commit -m "Help desk em Django: chamados, comentarios e permissoes"
+git branch -M main
+git remote add origin https://github.com/SEU_USUARIO/helpdesk.git
+git push -u origin main</code></pre>
+        <h3>.gitignore mínimo</h3>
+        <pre><code>.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.env</code></pre>
+        <div class="callout warn"><b>🔐 Produção</b><br>Antes de publicar, retire a <code>SECRET_KEY</code> do código e passe-a para variável de ambiente. O PDF também recomenda deixar explícito no README quando a chave é apenas de desenvolvimento.</div>
+      </div>
+    </section>
+
+    <section id="melhorias" class="section">
+      <div class="section-heading"><span>EXTENSÕES</span><h2>O que eu acrescentaria</h2></div>
+      <p>Estas melhorias são separadas da implementação-base para não confundir o passo a passo original com funcionalidades adicionais.</p>
+      <div class="improvements">
+        <article><b>📊 Dashboard</b><p>Cards por status, chamados atrasados, por atendente e indicadores rápidos.</p></article>
+        <article><b>⏰ SLA</b><p><code>due_at</code> por prioridade, destaque de atrasados e filtro “vencendo hoje”.</p></article>
+        <article><b>📎 Anexos</b><p>Modelo de anexos com <code>FileField</code>, mídia e validação de extensão/tamanho.</p></article>
+        <article><b>🧾 Histórico</b><p><code>TicketEvent</code> para registrar alterações de status, prioridade e responsável.</p></article>
+        <article><b>🔎 Busca</b><p>Pesquisa por título, descrição, categoria, solicitante e número do chamado.</p></article>
+        <article><b>⚡ UX</b><p>HTMX para comentários e atualização parcial sem recarregar a página.</p></article>
+        <article><b>🛡️ Segurança</b><p>Variáveis de ambiente, CSRF, validação de uploads, headers e configuração segura de produção.</p></article>
+        <article><b>🚀 Deploy</b><p>PostgreSQL, Gunicorn e uma plataforma como Railway ou Render.</p></article>
+        <article><b>🔌 API</b><p>Django REST Framework reaproveitando as regras de visibilidade.</p></article>
+      </div>
+    </section>
+
+    <section id="problemas" class="section">
+      <div class="section-heading"><span>TROUBLESHOOTING</span><h2>Problemas comuns</h2></div>
+      <div class="faq">
+        <details><summary>TemplateDoesNotExist</summary><p>Confira a pasta <code>tickets/templates/tickets/</code> e se <code>tickets</code> está no <code>INSTALLED_APPS</code>.</p></details>
+        <details><summary>NodeNotFoundError na migration 0002</summary><p>Gere a <code>0001_initial</code> primeiro e só depois coloque a migration de seed.</p></details>
+        <details><summary>Logout retorna 405</summary><p>O fluxo usa POST. Utilize o botão de sair, não um link GET.</p></details>
+        <details><summary>403 ao assumir ou gerenciar</summary><p>O usuário precisa ser staff ou pertencer ao grupo <code>Atendentes</code>.</p></details>
+        <details><summary>Atendente não aparece como responsável</summary><p>Ele precisa estar ativo e ser atendente.</p></details>
+        <details><summary>Nenhuma categoria no formulário</summary><p>Execute <code>python manage.py migrate</code> ou cadastre categorias pelo admin.</p></details>
+        <details><summary>E-mail não aparece no terminal</summary><p>Preencha o e-mail do usuário e mantenha o servidor rodando com a configuração de e-mail de desenvolvimento.</p></details>
+      </div>
+    </section>
+
+    <footer>
+      <p><b>Help Desk em Django</b> · documentação web derivada do PDF fornecido.</p>
+      <p>Referência visual/estrutural: <a href="https://github.com/andreyferramentasia/django_aulas" target="_blank" rel="noopener">andreyferramentasia/django_aulas</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
