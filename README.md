@@ -1,14 +1,19 @@
-# Help Desk em Django — documentação web
+# Correção do tema — Docs Helpdesk Django
 
-Versão web navegável do PDF `helpdesk-django-passo-a-passo.pdf`.
+Substitua `style.css` e `app.js` no repositório.
 
-## Arquivos
-- `index.html` — documentação completa em uma página.
-- `style.css` — tema responsivo inspirado no repositório `andreyferramentasia/django_aulas`.
-- `app.js` — busca, tema escuro, menu mobile e destaque do passo atual.
+Correções principais:
+- remove os blocos brancos que permaneciam no tema escuro;
+- corrige cards, passos, FAQ, busca, botões, alertas e lista de testes;
+- melhora contraste de texto e bordas no dark mode;
+- persiste o tema escolhido no `localStorage`;
+- usa a preferência de tema do sistema quando não houver escolha salva;
+- alterna o botão entre `🌙 Tema escuro` e `☀️ Tema claro`.
 
-## Como abrir
-Basta abrir `index.html` no navegador.
+Depois:
 
-## Observação
-O conteúdo funcional foi baseado na documentação fornecida. As ideias de dashboard, SLA, anexos, histórico, HTMX, API e deploy aparecem separadas como extensões sugeridas.
+```bash
+git add style.css app.js
+git commit -m "fix: corrigir tema claro e escuro"
+git push origin main
+```
